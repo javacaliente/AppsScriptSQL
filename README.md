@@ -265,11 +265,6 @@ new gSQL().DB(databaseId).DROPDB();
 
 ## Documentation and demo
 
-- [Original documentation](https://docs.yiono.fr/)
-- [Web app demo](https://docs.yiono.fr/example-of-a-web-app-created-with-google-apps-script-and-yiono-library)
-- [Demo source code](https://bit.ly/2ZkF5Mp)
-- [Demo spreadsheet](https://bit.ly/3772xj2)
-
 ## License
 
 Licensed under the [MIT License](LICENSE).
