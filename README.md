@@ -1,6 +1,6 @@
 # GoogleScriptSQL
 
-GoogleScriptSQL is a small Google Apps Script library that treats worksheets as tables and provides a chainable, SQL-inspired API for working with their data.
+GoogleScriptSQL is a single-file, SQL-inspired data access layer for Google Sheets projects built with Apps Script.
 
 Each spreadsheet acts as a database, each sheet acts as a table, the first row contains column names, and the first column is an automatically managed numeric `ID`.
 
@@ -33,6 +33,8 @@ This project runs only in Google Apps Script. It does not require an API key, np
 
 ## Installation
 
+GoogleScriptSQL currently uses copied-source deployment. It is not published as an official versioned Apps Script Library.
+
 1. Open or create a project at [Google Apps Script](https://script.google.com/).
 2. Add a script file to the project.
 3. Copy the contents of [`code.js`](code.js) into that file.
@@ -53,7 +55,7 @@ A table is a worksheet with headers in row 1:
 | 1 | Ada | ada@example.com | true |
 | 2 | Grace | grace@example.com | false |
 
-The library expects the ID column to be first. `SETCOLUMNS` creates it automatically, and `INSERT` assigns IDs based on the last row's ID.
+The data access layer expects the ID column to be first. `SETCOLUMNS` creates it automatically, and `INSERT` assigns IDs based on the last row's ID.
 
 ## Create a database
 
@@ -97,7 +99,7 @@ var sql = new gSQL().DB(databaseId).TABLE('Customers');
 
 ## Insert rows
 
-Do not include an ID; the library prepends it automatically.
+Do not include an ID; `INSERT` prepends it automatically.
 
 ```javascript
 // One row
