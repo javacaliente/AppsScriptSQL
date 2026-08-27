@@ -161,13 +161,14 @@ Review gate: decide which surprising behaviors must remain compatible and which 
 
 Each item becomes its own patch release unless investigation proves that two items have the same root cause and should be reviewed together.
 
-- [ ] `0.1.1` candidate: make empty and header-only tables safe
+- [ ] `0.1.1` candidate: establish the characterization harness and make empty and header-only tables safe
 - [ ] `0.1.2` candidate: validate spreadsheet IDs, sheets, columns, operators, and value shapes
 - [ ] `0.1.3` candidate: stop mutating caller-provided arrays
-- [ ] `0.1.4` candidate: make sequential ID generation concurrency-safe, likely with `LockService`
-- [ ] `0.1.5` candidate: prevent state leakage when a `gSQL` instance is reused
-- [ ] `0.1.6` candidate: decide and implement the disposition of incomplete `INNERJOIN`
+- [ ] `0.1.4` candidate: prevent state leakage when a `gSQL` instance is reused
+- [ ] `0.1.5` candidate: make sequential ID generation concurrency-safe, likely with `LockService`
+- [ ] `0.1.6` candidate: batch inserts and compatible updates while caching spreadsheet and sheet handles within an operation
 - [ ] `0.1.7` candidate: add guardrails and clear errors for destructive operations
+- [ ] `0.1.8` candidate: remove dead code and decide the disposition of incomplete `INNERJOIN`; implementing a new join capability requires a later feature release
 
 Every confirmed bug must have a failing regression test before its fix. Version order may change after characterization establishes severity and dependencies.
 
@@ -175,13 +176,12 @@ Every confirmed bug must have a failing regression test before its fix. Version 
 
 Performance work begins only after correctness stabilization. Each independently reviewable optimization receives its own patch version when it does not add or break public behavior.
 
-- [ ] Cache spreadsheet and sheet handles within an operation
-- [ ] Batch multi-row inserts with `setValues`
-- [ ] Batch compatible updates
+- [ ] Verify the `0.1.6` batch and handle-caching changes against representative fixtures
 - [ ] Minimize row-by-row deletion work
 - [ ] Replace nested-loop equality joins with indexed lookups where possible
-- [ ] Add representative size benchmarks
-- [ ] Document practical sheet-size limits
+- [ ] Benchmark core operations with tables of up to 10,000 rows and 50 columns
+- [ ] Test up to five simultaneous callers, allow concurrent reads, and serialize writes
+- [ ] Document measured limits and redirect larger or high-frequency workloads to a database
 
 Stabilization exit conditions:
 
@@ -198,11 +198,11 @@ No feature release may begin until these conditions are reviewed and accepted.
 
 After stabilization, each approved feature receives its own minor version:
 
-- `0.2.0`: first approved feature
+- `0.2.0`: proposed explicit `strict` and controlled `coerce` comparison modes
 - `0.3.0`: second approved feature
 - `0.4.0`: third approved feature
 
-Feature numbers are placeholders, not authorization to implement anything. The feature backlog will be prioritized only after stabilization. A minor release contains one user-visible feature together with its tests, documentation, and any internal work required to support it.
+Feature numbers are placeholders, not authorization to implement anything. The feature backlog will be prioritized only after stabilization. A minor release contains one user-visible feature together with its tests, documentation, and any internal work required to support it. The `0.2.0` comparison feature requires a written policy for numbers, numeric strings, booleans, blanks, dates, and identifiers with leading zeros before implementation.
 
 Large API redesigns require a written proposal before implementation. That proposal must address compatibility with the uppercase API, return and error types, installation method, and migration guidance. A proposal does not authorize a rewrite.
 
@@ -217,16 +217,16 @@ Version `1.0.0` should not be scheduled until all of the following are true:
 - Deprecated behavior has a documented migration path.
 - Performance limits are measured and documented.
 
-## Decisions needed before stabilization work
+## Decisions recorded for stabilization
 
-1. Is backward compatibility with the current uppercase API required?
-2. Should this remain a zero-dependency Apps Script file or adopt a `clasp`-based development workflow?
-3. Is the library intended for copied source, an Apps Script library deployment, or both?
-4. Should IDs remain sequential numbers, or may they become UUIDs or another safer identifier?
-5. Should loose comparison remain available for compatibility?
-6. What sheet sizes and request concurrency should the project support?
+- Backward compatibility with the current uppercase API is not required because the project has not been rolled out.
+- The shipped library remains a zero-dependency Apps Script source file for now. External development dependencies require separate approval.
+- Distribution remains copy-the-source deployment for now; an Apps Script library deployment and `clasp` workflow are deferred.
+- Current loose comparison behavior remains unchanged throughout `0.1.x` and must be characterized by tests. Explicit comparison modes are deferred to the proposed `0.2.0` feature.
+- The provisional support target is 10,000 rows and 50 columns per table with up to five simultaneous callers. Reads may run concurrently; writes must be serialized.
+- IDs remain sequential numbers during characterization. The choice between concurrency-safe sequential IDs and a different identifier format remains open until the `0.1.5` scope is reviewed.
 
-The test strategy can be investigated before all product decisions are final. No runtime behavior should change until the relevant decision and patch scope are reviewed.
+No runtime behavior should change until the relevant patch scope and expected result are reviewed.
 
 ## Decisions needed before the first feature
 

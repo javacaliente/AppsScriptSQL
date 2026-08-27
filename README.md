@@ -6,6 +6,12 @@ Each spreadsheet acts as a database, each sheet acts as a table, the first row c
 
 Current version: [`0.1.0`](VERSION). See the [development plan](plan.md) for the current-state assessment and staged roadmap.
 
+## Development status
+
+The `0.1.x` cycle is reserved for testing and repairing the existing implementation. New features will not be added until the current API passes the stabilization criteria in the development plan. Each patch release will contain one fix or one tightly related set of fixes.
+
+After stabilization, each approved feature will receive its own minor version. The first proposed feature release, `0.2.0`, will define explicit strict and controlled-coercion comparison modes. Until then, the current loose comparison behavior remains unchanged and will be covered by characterization tests.
+
 ## Features
 
 - Create a spreadsheet database, tables, and columns
@@ -156,7 +162,21 @@ var selectedCustomers = new gSQL()
   .getVal();
 ```
 
-Supported comparison operators are `=`, `!=`, `>`, `<`, `>=`, and `<=`. Comparisons use Google Apps Script's non-strict JavaScript equality behavior.
+Supported comparison operators are `=`, `!=`, `>`, `<`, `>=`, and `<=`.
+
+### Current comparison behavior
+
+The current implementation uses JavaScript's loose equality operators (`==` and `!=`) and implicit type conversion during comparisons. Values with different types can therefore match:
+
+```javascript
+1 == '1'    // true
+false == 0  // true
+'' == 0     // true
+```
+
+This behavior affects `WHERE`, `AND`, `OR`, filtered updates, `DELETEWHERE`, and `JOINWHERE`. Callers should validate and normalize filter values before operations that update or delete data.
+
+This behavior is documented as a current limitation. It will remain unchanged until the comparison cases are covered by tests and a replacement policy is explicitly approved.
 
 ## Update rows
 
@@ -263,6 +283,7 @@ new gSQL().DB(databaseId).DROPDB();
 - Writes are not transactional and do not provide concurrency control.
 - Operations are subject to Google Apps Script execution time and service quotas.
 - Column names must exactly match the header text.
+- Comparisons can coerce values of different JavaScript types and may match more rows than expected.
 - IDs assume that the last data row contains the highest numeric ID.
 
 ## Documentation and demo
