@@ -110,8 +110,8 @@ Goal: preserve and document the code as received.
 - [x] Document installation and current API behavior
 - [x] Record current limitations
 - [x] Introduce a version source
-- [ ] Add a changelog with the baseline release entry
-- [ ] Create the annotated `v0.1.0` tag after review
+- [x] Add a changelog with the baseline release entry
+- [x] Create the annotated `v0.1.0` tag after review
 
 Exit condition: the repository clearly identifies the untouched implementation and its supported surface.
 
