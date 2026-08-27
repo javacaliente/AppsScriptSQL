@@ -41,11 +41,14 @@ The implemented methods are:
 
 ### Problems the project currently solves
 
-- Reduces repeated `SpreadsheetApp` boilerplate for small Apps Script projects
-- Gives simple Sheets-backed applications a chainable CRUD interface
-- Provides basic filtering without requiring callers to write array traversal code
-- Creates a consistent header-and-ID convention across worksheets
+- Reduces repeated `SpreadsheetApp` and `DriveApp` boilerplate in small Apps Script projects
+- Creates spreadsheet databases, worksheet tables, and column headers from code
+- Establishes a consistent table structure with headers and automatically assigned numeric IDs
+- Provides a chainable interface for inserting, selecting, updating, and deleting data
+- Applies reusable SQL-like conditions to reads, updates, and deletions
+- Selects complete rows or only the columns required by the caller
 - Provides a basic way to combine selected data from two worksheets
+- Centralizes table lifecycle operations such as adding columns, truncating tables, and deleting tables or databases
 
 ### Known risks and constraints
 
@@ -87,18 +90,35 @@ The implemented methods are:
 6. Treat destructive operations and ID generation as high-risk paths.
 7. Keep each release small enough to review in one pass.
 8. Stop for review at the end of every phase; later phases are not automatically authorized.
+9. Do not add features until the existing API passes the agreed stabilization criteria.
+10. Release one new feature per minor version. Its tests and documentation are part of that same version.
 
 ## Versioning policy
 
 The project will use [Semantic Versioning](https://semver.org/):
 
 - `MAJOR`: incompatible public API changes
-- `MINOR`: backward-compatible functionality or meaningful internal improvements
-- `PATCH`: backward-compatible fixes and documentation corrections
+- `MINOR`: one approved backward-compatible feature
+- `PATCH`: one backward-compatible fix or one tightly related set of fixes
 
 Until the API is intentionally stabilized, versions remain below `1.0.0`. Git releases should use annotated tags in the form `vX.Y.Z`, while the `VERSION` file contains only `X.Y.Z`.
 
 The version should be changed in the same commit as the release notes and tagged only after that commit is approved. Published tags should not be moved or reused.
+
+Tests, documentation, and internal implementation work do not require separate releases by themselves. They should normally ship with the fix or feature they support. A documentation-only correction may use a patch release when publishing it independently is useful.
+
+### Release checklist
+
+Every fix or feature release follows the same sequence:
+
+1. Define one bounded problem or feature.
+2. Add tests that demonstrate the existing behavior and expected result.
+3. Make only the changes required for that scope.
+4. Run the complete test suite and review the diff.
+5. Update the README when user-facing behavior changes.
+6. Update `CHANGELOG.md` and `VERSION`.
+7. Commit and push only after review.
+8. Create and push the annotated version tag only after approval.
 
 ## Roadmap
 
@@ -115,9 +135,15 @@ Goal: preserve and document the code as received.
 
 Exit condition: the repository clearly identifies the untouched implementation and its supported surface.
 
-### 0.2.0 — Characterization and safety net
+## Stabilization track: 0.1.x
 
-Goal: make current behavior observable without intentionally changing it.
+Goal: test and repair the existing feature set before adding anything new.
+
+Patch numbers below are provisional. A suspected bug receives a version only after a test reproduces it and the release scope is approved. If investigation shows that an item is not broken, it is documented rather than changed.
+
+### Characterization gate
+
+Characterization work begins under `Unreleased` and ships with the first applicable patch release. It does not intentionally change runtime behavior.
 
 - [ ] Choose a test strategy for Apps Script service mocks
 - [ ] Add fixtures representing empty, header-only, and populated tables
@@ -126,32 +152,28 @@ Goal: make current behavior observable without intentionally changing it.
 - [ ] Characterize join output and type coercion
 - [ ] Record current error behavior for invalid sheets and columns
 - [ ] Add an Apps Script manifest if the chosen test/deployment workflow requires it
-- [ ] Add a changelog and repeatable release checklist
 
-Exit condition: the documented public API has automated characterization coverage, including known edge cases.
+Gate condition: the documented public API has enough automated coverage to distinguish a regression from an intentional fix.
 
 Review gate: decide which surprising behaviors must remain compatible and which are bugs.
 
-### 0.3.0 — Correctness and validation
+### Provisional patch sequence
 
-Goal: address confirmed data-corruption and invalid-input risks.
+Each item becomes its own patch release unless investigation proves that two items have the same root cause and should be reviewed together.
 
-- [ ] Validate spreadsheet IDs, sheet names, column names, operators, and value shapes
-- [ ] Make empty and header-only tables safe
-- [ ] Stop mutating caller-provided arrays
-- [ ] Make IDs safe under concurrent Apps Script executions, likely with `LockService`
-- [ ] Define and enforce instance reuse behavior
-- [ ] Add clear errors for invalid operations
-- [ ] Decide whether to complete, deprecate, or remove `INNERJOIN`
-- [ ] Add regression tests for every fix
+- [ ] `0.1.1` candidate: make empty and header-only tables safe
+- [ ] `0.1.2` candidate: validate spreadsheet IDs, sheets, columns, operators, and value shapes
+- [ ] `0.1.3` candidate: stop mutating caller-provided arrays
+- [ ] `0.1.4` candidate: make sequential ID generation concurrency-safe, likely with `LockService`
+- [ ] `0.1.5` candidate: prevent state leakage when a `gSQL` instance is reused
+- [ ] `0.1.6` candidate: decide and implement the disposition of incomplete `INNERJOIN`
+- [ ] `0.1.7` candidate: add guardrails and clear errors for destructive operations
 
-Exit condition: common invalid inputs fail clearly and normal concurrent inserts cannot silently duplicate IDs.
+Every confirmed bug must have a failing regression test before its fix. Version order may change after characterization establishes severity and dependencies.
 
-Review gate: approve any compatibility changes discovered during correctness work.
+### Performance stabilization
 
-### 0.4.0 — Batch operations and performance
-
-Goal: reduce Apps Script service calls without changing approved behavior.
+Performance work begins only after correctness stabilization. Each independently reviewable optimization receives its own patch version when it does not add or break public behavior.
 
 - [ ] Cache spreadsheet and sheet handles within an operation
 - [ ] Batch multi-row inserts with `setValues`
@@ -161,22 +183,30 @@ Goal: reduce Apps Script service calls without changing approved behavior.
 - [ ] Add representative size benchmarks
 - [ ] Document practical sheet-size limits
 
-Exit condition: CRUD operations use bounded service calls where the Sheets API permits it, with benchmark evidence.
+Stabilization exit conditions:
 
-### 0.5.0 — API design proposal
+- The current public API and its edge cases have automated coverage.
+- Confirmed data-corruption and invalid-input bugs are fixed or explicitly documented and deferred.
+- Normal concurrent inserts cannot silently duplicate IDs.
+- Destructive operations have reviewed behavior and regression coverage.
+- Core operations avoid clearly unnecessary Apps Script service calls.
+- All supported behavior is reflected in the README.
 
-Goal: design the maintainable API before rewriting the public surface.
+No feature release may begin until these conditions are reviewed and accepted.
 
-- [ ] Inventory naming and return-type inconsistencies
-- [ ] Decide whether legacy uppercase methods remain supported
-- [ ] Define query result and error types
-- [ ] Define transaction and concurrency expectations explicitly
-- [ ] Decide the supported installation model: copied source, Apps Script library, or `clasp`
-- [ ] Publish a migration proposal with examples
+## Feature track: 0.2.0 and later
 
-Exit condition: a reviewed API specification and migration policy exist. This phase does not itself authorize a breaking rewrite.
+After stabilization, each approved feature receives its own minor version:
 
-### 1.0.0 — Stable release criteria
+- `0.2.0`: first approved feature
+- `0.3.0`: second approved feature
+- `0.4.0`: third approved feature
+
+Feature numbers are placeholders, not authorization to implement anything. The feature backlog will be prioritized only after stabilization. A minor release contains one user-visible feature together with its tests, documentation, and any internal work required to support it.
+
+Large API redesigns require a written proposal before implementation. That proposal must address compatibility with the uppercase API, return and error types, installation method, and migration guidance. A proposal does not authorize a rewrite.
+
+## 1.0.0 — Stable release criteria
 
 Version `1.0.0` should not be scheduled until all of the following are true:
 
@@ -187,7 +217,7 @@ Version `1.0.0` should not be scheduled until all of the following are true:
 - Deprecated behavior has a documented migration path.
 - Performance limits are measured and documented.
 
-## Decisions needed before 0.2.0
+## Decisions needed before stabilization work
 
 1. Is backward compatibility with the current uppercase API required?
 2. Should this remain a zero-dependency Apps Script file or adopt a `clasp`-based development workflow?
@@ -196,4 +226,11 @@ Version `1.0.0` should not be scheduled until all of the following are true:
 5. Should loose comparison remain available for compatibility?
 6. What sheet sizes and request concurrency should the project support?
 
-No implementation work for `0.2.0` should begin until these choices and the scope of that release are reviewed.
+The test strategy can be investigated before all product decisions are final. No runtime behavior should change until the relevant decision and patch scope are reviewed.
+
+## Decisions needed before the first feature
+
+1. Confirm that the stabilization exit conditions have been met.
+2. Choose exactly one feature and define its acceptance criteria.
+3. Confirm whether the feature is backward-compatible.
+4. Assign the next minor version only after the scope is approved.
