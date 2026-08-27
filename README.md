@@ -4,6 +4,8 @@ GoogleScriptSQL is a small Google Apps Script library that treats worksheets as 
 
 Each spreadsheet acts as a database, each sheet acts as a table, the first row contains column names, and the first column is an automatically managed numeric `ID`.
 
+Current version: [`0.1.0`](VERSION). See the [development plan](plan.md) for the current-state assessment and staged roadmap.
+
 ## Features
 
 - Create a spreadsheet database, tables, and columns
