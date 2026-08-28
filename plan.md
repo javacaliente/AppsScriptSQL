@@ -4,9 +4,9 @@
 
 This document records what exists today and provides a controlled path for improving it. The project should be characterized before it is refactored. Work should proceed one version at a time, with a review and explicit decision before starting the next version.
 
-## Current release candidate: 0.1.1
+## Current release: 0.1.1
 
-Version `0.1.0` represents the imported legacy implementation plus documentation of its current API. The `0.1.1` release candidate adds the first automated characterization suite and narrowly scoped empty/header-only safety fixes. Neither version represents a production-readiness milestone.
+Version `0.1.0` represents the imported legacy implementation plus documentation of its current API. Version `0.1.1` adds the first automated characterization suite and narrowly scoped empty/header-only safety fixes. Neither version represents a production-readiness milestone.
 
 ### Repository contents
 
