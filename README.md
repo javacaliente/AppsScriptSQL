@@ -308,6 +308,7 @@ new gSQL().DB(databaseId).DROPDB();
 ## Documentation and demo
 
 - [Getting started with GoogleScriptSQL](GETTING_STARTED.md)
+- [Understanding the API and its architecture](API.md)
 - [Development plan](plan.md)
 
 ## License
