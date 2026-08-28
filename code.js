@@ -5,7 +5,18 @@ var gSQL = function() {
     //Some functions
 function getData(db,tableName,argument){
     var sheet = SpreadsheetApp.openById(db).getSheetByName(tableName);
-     return sheet.getRange(1, 1, sheet.getLastRow(), sheet.getLastColumn()).getValues()
+     return readSheetData(sheet)
+}
+
+function readSheetData(sheet) {
+    var lastRow = sheet.getLastRow();
+    var lastColumn = sheet.getLastColumn();
+
+    if (lastRow === 0 || lastColumn === 0) {
+        return [];
+    }
+
+    return sheet.getRange(1, 1, lastRow, lastColumn).getValues()
 }
 
 function insertion(db,table,data){
@@ -167,7 +178,7 @@ function checkIfIDIsExisting(db, table) {
             Meth = "GET"
         }
          var sheet = SpreadsheetApp.openById(Db).getSheetByName(Table);
-         Data = sheet.getRange(1, 1, sheet.getLastRow(), sheet.getLastColumn()).getValues()
+         Data = readSheetData(sheet)
          
 
         if(Meth == "GET"){
@@ -186,7 +197,7 @@ function checkIfIDIsExisting(db, table) {
     
         Meth = "UPDATE";
         var sheet = SpreadsheetApp.openById(Db).getSheetByName(Table);
-        Data = sheet.getRange(1, 1, sheet.getLastRow(), sheet.getLastColumn()).getValues();
+        Data = readSheetData(sheet);
         OriginalData= Data;
         var headers = Data[0]
         var position = []
@@ -233,8 +244,11 @@ function checkIfIDIsExisting(db, table) {
     this.TRUNCATE = function() {
 
         var sheet = SpreadsheetApp.openById(Db).getSheetByName(Table);
+        var dataRowCount = sheet.getLastRow() - 1;
 
-        sheet.deleteRows(2, sheet.getLastRow() - 1);
+        if (dataRowCount > 0) {
+            sheet.deleteRows(2, dataRowCount);
+        }
 
         return "The table " + Table + " has been emptied";
 
@@ -323,7 +337,7 @@ function checkIfIDIsExisting(db, table) {
     this.INNERJOIN = function(a) {
         Meth = "INNERJOIN";
         var sheet = SpreadsheetApp.openById(Db).getSheetByName(a);
-        InnerData = sheet.getRange(1, 1, sheet.getLastRow(), sheet.getLastColumn()).getValues();
+        InnerData = readSheetData(sheet);
         return this
     }
     //---------------------------------------------------------------------------------------------------------------
@@ -433,24 +447,29 @@ return returnValues
     this.setVal = function() {
         var dataToUpdate = DataToUpdate;
         var sheet = SpreadsheetApp.openById(Db).getSheetByName(Table);
+        var dataRowCount = sheet.getLastRow() - 1;
+
+        if (dataRowCount <= 0) {
+            return "The values have been updated"
+        }
 
         if (Row == undefined && Col.length == 1) {
             var dataToInsert = [];
-            for (var i = 0; i < (sheet.getLastRow() - 1); i++) {
+            for (var i = 0; i < dataRowCount; i++) {
                 var data = [dataToUpdate];
                 dataToInsert.push(data);
                 //sheet.getRange(i+2, (Col[0] + 1)).setValue(dataToUpdate);
             }
-            sheet.getRange(2, (Col[0] + 1), (sheet.getLastRow() - 1)).setValues(dataToInsert);
+            sheet.getRange(2, (Col[0] + 1), dataRowCount).setValues(dataToInsert);
             return "The values have been updated"
         } else if (Row == undefined && Col.length > 1) {
             for (var i = 0; i < Col.length; i++) {
                 var dataToInsert = [];
-                for (var j = 0; j < (sheet.getLastRow() - 1); j++) {
+                for (var j = 0; j < dataRowCount; j++) {
                     var data = [dataToUpdate[i]];
                     dataToInsert.push(data);
                 }
-                sheet.getRange(2, (Col[i] + 1), (sheet.getLastRow() - 1)).setValues(dataToInsert);
+                sheet.getRange(2, (Col[i] + 1), dataRowCount).setValues(dataToInsert);
             }
             return "The values have been updated"
         } else if (Row != undefined) {
@@ -482,4 +501,3 @@ return returnValues
         }
     }
 }
-

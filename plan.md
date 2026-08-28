@@ -4,18 +4,22 @@
 
 This document records what exists today and provides a controlled path for improving it. The project should be characterized before it is refactored. Work should proceed one version at a time, with a review and explicit decision before starting the next version.
 
-## Current baseline: 0.1.0
+## Current release candidate: 0.1.1
 
-Version `0.1.0` represents the imported legacy implementation plus documentation of its current API. It is a baseline, not a production-readiness milestone.
+Version `0.1.0` represents the imported legacy implementation plus documentation of its current API. The `0.1.1` release candidate adds the first automated characterization suite and narrowly scoped empty/header-only safety fixes. Neither version represents a production-readiness milestone.
 
 ### Repository contents
 
-- `code.js`: the complete library implementation in one Google Apps Script file
+- `code.js`: the complete data access layer implementation in one Google Apps Script file
 - `README.md`: installation, usage examples, API summary, and known limitations
+- `CHANGELOG.md`: notable changes grouped by project version
+- `plan.md`: stabilization rules, release scopes, and future decision gates
+- `tests/apps-script-mocks.js`: local mocks for the Apps Script spreadsheet APIs
+- `tests/gsql.test.js`: the initial automated characterization and regression suite
 - `LICENSE`: MIT License
 - `VERSION`: the current project version
 
-There is currently no Apps Script manifest, automated test suite, package configuration, changelog, CI workflow, or release automation.
+There is currently no Apps Script manifest, package configuration, CI workflow, or release automation. The project uses copied-source distribution, a zero-external-dependency Node test harness, and a documented manual release checklist.
 
 ### Current data model
 
@@ -56,7 +60,7 @@ The implemented methods are:
 
 - ID generation is not concurrency-safe and can produce duplicates.
 - Missing sheets and missing column names are not validated consistently.
-- Empty sheets and header-only tables can produce invalid range or row operations.
+- Some empty-sheet and header-only operations still depend on validation planned for later patches; `0.1.1` covers blank-sheet `SELECT('ALL')`, blank/header-only `TRUNCATE`, and header-only unfiltered updates.
 - Several methods mutate caller-provided arrays with `unshift`.
 - Stateful query fields can leak between operations when an instance is reused.
 - `INNERJOIN` loads data but does not complete a join or return a result.
@@ -74,11 +78,11 @@ The implemented methods are:
 
 #### Maintainability
 
-- The library is one large constructor with shared mutable state.
+- The data access layer is one large constructor with shared mutable state.
 - Public method names and return shapes are inconsistent.
 - Errors are mostly surfaced as raw Apps Script failures.
-- Behavior is not protected by tests.
-- There is no formal distribution or release process.
+- An initial 10-test suite protects selected CRUD, empty/header-only, ID, loose-comparison, and equality-join paths; coverage of the full public API remains incomplete.
+- Distribution and releases are manual; there is no CI or release automation.
 
 ## Working rules
 
@@ -143,15 +147,18 @@ Patch numbers below are provisional. A suspected bug receives a version only aft
 
 ### Characterization gate
 
-Characterization work begins under `Unreleased` and ships with the first applicable patch release. It does not intentionally change runtime behavior.
+Characterization work begins under `Unreleased` and ships with the first applicable patch release. It does not intentionally change runtime behavior. Coverage accumulates across the `0.1.x` stabilization cycle: every path must be characterized before that path changes, and the entire gate must close before feature development begins.
 
-- [ ] Choose a test strategy for Apps Script service mocks
-- [ ] Add fixtures representing empty, header-only, and populated tables
-- [ ] Characterize insert and ID behavior
-- [ ] Characterize select, filter, update, and delete behavior
-- [ ] Characterize join output and type coercion
+- [x] Choose a zero-external-dependency Node test strategy with Apps Script service mocks
+- [x] Add fixtures representing empty, header-only, and populated tables
+- [x] Characterize the first insert and legacy initial ID of `0`
+- [ ] Characterize multi-row inserts and ID continuation
+- [x] Characterize blank/header-only selection, loose `WHERE` equality, filtered and unfiltered updates, `DELETEWHERE`, and `TRUNCATE`
+- [ ] Characterize `AND`, `OR`, remaining comparison operators, multi-column updates, and remaining destructive operations
+- [x] Characterize equality-join output and loose equality across join columns
+- [ ] Characterize non-equality joins and empty/header-only join inputs
 - [ ] Record current error behavior for invalid sheets and columns
-- [ ] Add an Apps Script manifest if the chosen test/deployment workflow requires it
+- [x] Confirm that an Apps Script manifest is not required for the current copied-source workflow
 
 Gate condition: the documented public API has enough automated coverage to distinguish a regression from an intentional fix.
 
@@ -161,7 +168,7 @@ Review gate: decide which surprising behaviors must remain compatible and which 
 
 Each item becomes its own patch release unless investigation proves that two items have the same root cause and should be reviewed together.
 
-- [ ] `0.1.1` candidate: establish the characterization harness and make empty and header-only tables safe
+- [x] `0.1.1`: establish the characterization harness; make blank-sheet `SELECT('ALL')`, blank/header-only `TRUNCATE`, and header-only unfiltered updates safe
 - [ ] `0.1.2` candidate: validate spreadsheet IDs, sheets, columns, operators, and value shapes
 - [ ] `0.1.3` candidate: stop mutating caller-provided arrays
 - [ ] `0.1.4` candidate: prevent state leakage when a `gSQL` instance is reused

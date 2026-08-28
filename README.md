@@ -4,7 +4,7 @@ GoogleScriptSQL is a single-file, SQL-inspired data access layer for Google Shee
 
 Each spreadsheet acts as a database, each sheet acts as a table, the first row contains column names, and the first column is an automatically managed numeric `ID`.
 
-Current version: [`0.1.0`](VERSION). See the [development plan](plan.md) for the current-state assessment and staged roadmap.
+Current version: [`0.1.1`](VERSION). See the [development plan](plan.md) for the current-state assessment and staged roadmap.
 
 ## Development status
 
@@ -46,16 +46,28 @@ Create a fresh instance for each independent operation:
 var sql = new gSQL();
 ```
 
+### Run the tests
+
+The shipped Apps Script code has no runtime dependencies. The local characterization suite uses only built-in Node.js modules and requires no package installation:
+
+```bash
+node --test tests/gsql.test.js
+```
+
+The initial suite contains 10 tests covering blank, header-only, and populated table paths; normal and no-op updates and truncation; the legacy first ID of `0`; and loose equality in filters, mutations, and equality joins.
+
+Coverage is intentionally partial. The suite does not yet characterize every public method, comparison operator, `AND`/`OR` combination, multi-row insertion path, invalid-input case, or join variant. Pending coverage is tracked in the development plan and must be added before the related behavior changes.
+
 ## Data model
 
 A table is a worksheet with headers in row 1:
 
 | ID | Name | Email | Active |
 |---:|---|---|---|
-| 1 | Ada | ada@example.com | true |
-| 2 | Grace | grace@example.com | false |
+| 0 | Ada | ada@example.com | true |
+| 1 | Grace | grace@example.com | false |
 
-The data access layer expects the ID column to be first. `SETCOLUMNS` creates it automatically, and `INSERT` assigns IDs based on the last row's ID.
+The data access layer expects the ID column to be first. `SETCOLUMNS` creates it automatically, and `INSERT` assigns IDs based on the last row's ID. In the current implementation, the first generated ID is `0`; that legacy behavior is covered by a characterization test and will be reviewed separately from the `0.1.1` safety fixes.
 
 ## Create a database
 
@@ -142,7 +154,7 @@ var namesAndEmails = new gSQL()
   .getVal();
 ```
 
-The returned arrays contain data rows only; the header row is removed.
+The returned arrays contain data rows only; the header row is removed. `SELECT('ALL')` returns an empty array for a blank sheet, and selections from a header-only table return no data rows.
 
 ## Filter data
 
@@ -204,7 +216,7 @@ new gSQL()
   .setVal();
 ```
 
-If no `WHERE` clause is supplied, `setVal()` updates every data row in the selected column or columns.
+If no `WHERE` clause is supplied, `setVal()` updates every data row in the selected column or columns. A header-only table has no rows to update, so the operation is a no-op.
 
 ## Delete rows
 
@@ -249,6 +261,8 @@ new gSQL().DB(databaseId).DROPDB();
 ```
 
 `TRUNCATE`, `DROPTABLE`, and `DROPDB` are destructive. Test them against a disposable spreadsheet first.
+
+`TRUNCATE` is a no-op when a sheet is blank or contains only its header row.
 
 ## API summary
 
