@@ -33,12 +33,15 @@ This project runs only in Google Apps Script. It does not require an API key, np
 
 ## Installation
 
-GoogleScriptSQL currently uses copied-source deployment. It is not published as an official versioned Apps Script Library.
+GoogleScriptSQL currently uses copied-source deployment. It is not published as a versioned Google Apps Script Library.
 
 1. Open or create a project at [Google Apps Script](https://script.google.com/).
 2. Add a script file to the project.
 3. Copy the contents of [`code.js`](code.js) into that file.
-4. Save the project and authorize Sheets and Drive access when Google prompts you.
+4. Save the project.
+5. Run your code and authorize access to Google Sheets and Google Drive when prompted.
+
+For a complete walkthrough covering spreadsheet-bound and standalone projects, see [Getting started with GoogleScriptSQL](GETTING_STARTED.md).
 
 Create a fresh instance for each independent operation:
 
@@ -303,6 +306,9 @@ new gSQL().DB(databaseId).DROPDB();
 - IDs assume that the last data row contains the highest numeric ID.
 
 ## Documentation and demo
+
+- [Getting started with GoogleScriptSQL](GETTING_STARTED.md)
+- [Development plan](plan.md)
 
 ## License
 
