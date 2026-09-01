@@ -1,4 +1,4 @@
-# GoogleScriptSQL Development Plan
+# AppsScriptSQL Development Plan
 
 ## Purpose
 

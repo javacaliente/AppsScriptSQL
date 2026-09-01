@@ -1,12 +1,12 @@
-# Understanding the GoogleScriptSQL API
+# Understanding the AppsScriptSQL API
 
-GoogleScriptSQL provides a JavaScript programming interface for reading and writing spreadsheet data from Google Apps Script. It is a data-access layer, not an HTTP or REST API.
+AppsScriptSQL provides a JavaScript programming interface for reading and writing spreadsheet data from Google Apps Script. It is a data-access layer, not an HTTP or REST API.
 
 The word **API** can refer to several different layers in this project:
 
-1. **The GoogleScriptSQL API** is the collection of chainable methods such as `DB`, `TABLE`, `SELECT`, `WHERE`, and `getVal`.
-2. **The Google Apps Script service API** consists of Google's built-in objects such as `SpreadsheetApp` and `DriveApp`, which GoogleScriptSQL calls internally.
-3. **An HTTP API** would expose spreadsheet operations at web URLs. GoogleScriptSQL does not currently provide this layer, although an Apps Script web app could add one.
+1. **The AppsScriptSQL API** is the collection of chainable methods such as `DB`, `TABLE`, `SELECT`, `WHERE`, and `getVal`.
+2. **The Google Apps Script service API** consists of Google's built-in objects such as `SpreadsheetApp` and `DriveApp`, which AppsScriptSQL calls internally.
+3. **An HTTP API** would expose spreadsheet operations at web URLs. AppsScriptSQL does not currently provide this layer, although an Apps Script web app could add one.
 
 ## How the layers fit together
 
@@ -14,7 +14,7 @@ The word **API** can refer to several different layers in this project:
 Your Apps Script function
         |
         v
-GoogleScriptSQL: DB(), TABLE(), SELECT(), WHERE(), ...
+AppsScriptSQL: DB(), TABLE(), SELECT(), WHERE(), ...
         |
         v
 Apps Script services: SpreadsheetApp and DriveApp
@@ -23,7 +23,7 @@ Apps Script services: SpreadsheetApp and DriveApp
 Google Sheets and Google Drive
 ```
 
-Your code talks to GoogleScriptSQL. GoogleScriptSQL translates those calls into operations on the Apps Script services, and those services communicate with Sheets and Drive.
+Your code talks to AppsScriptSQL. AppsScriptSQL translates those calls into operations on the Apps Script services, and those services communicate with Sheets and Drive.
 
 ## A read operation from beginning to end
 
@@ -66,7 +66,7 @@ the result is:
 ]
 ```
 
-Filtering happens inside the script after the complete used range has been read. GoogleScriptSQL does not send SQL text to Google Sheets, and Google Sheets does not execute a SQL query.
+Filtering happens inside the script after the complete used range has been read. AppsScriptSQL does not send SQL text to Google Sheets, and Google Sheets does not execute a SQL query.
 
 ## Why method chaining works
 
@@ -136,7 +136,7 @@ See the [README API summary](README.md#api-summary) for a short description of e
 
 ## Authentication and API keys
 
-GoogleScriptSQL does not require an API key. It runs inside Google Apps Script and uses the account under which the script is executed.
+AppsScriptSQL does not require an API key. It runs inside Google Apps Script and uses the account under which the script is executed.
 
 When a function first attempts to access Sheets or Drive, Apps Script determines the permissions the code needs and asks the user to authorize them. Saving the source code alone does not trigger authorization.
 
@@ -144,7 +144,7 @@ The permissions granted to the script determine which spreadsheets and Drive fil
 
 ## This is not currently a REST API
 
-GoogleScriptSQL does not currently define:
+AppsScriptSQL does not currently define:
 
 - public URL endpoints;
 - HTTP methods such as `GET`, `POST`, `PATCH`, or `DELETE`;
@@ -162,7 +162,7 @@ The caller must be code running within the Apps Script project.
 
 ## How an HTTP layer could be added
 
-Apps Script web apps recognize special `doGet(e)` and `doPost(e)` entry points. A minimal read-only endpoint could call GoogleScriptSQL and return JSON:
+Apps Script web apps recognize special `doGet(e)` and `doPost(e)` entry points. A minimal read-only endpoint could call AppsScriptSQL and return JSON:
 
 ```javascript
 function doGet(e) {
@@ -187,7 +187,7 @@ Browser, mobile app, or other HTTP client
 Apps Script web app: doGet(e) / doPost(e)
         |
         v
-GoogleScriptSQL
+AppsScriptSQL
         |
         v
 Google Sheets and Google Drive
@@ -204,11 +204,11 @@ The example only demonstrates the architecture. A real HTTP API would also need 
 - Apps Script execution limits and service quotas;
 - API versioning and backward compatibility.
 
-Do not pass an arbitrary spreadsheet ID, table name, column name, or operation directly from an HTTP request into GoogleScriptSQL without validating it against an allowlist. In particular, write and destructive operations should not be exposed until authentication, authorization, validation, and error handling are defined.
+Do not pass an arbitrary spreadsheet ID, table name, column name, or operation directly from an HTTP request into AppsScriptSQL without validating it against an allowlist. In particular, write and destructive operations should not be exposed until authentication, authorization, validation, and error handling are defined.
 
 ## Current design constraints
 
-GoogleScriptSQL is intended for small Apps Script projects, not as a replacement for a database server:
+AppsScriptSQL is intended for small Apps Script projects, not as a replacement for a database server:
 
 - A read loads the sheet's complete used range before applying filters.
 - Writes are not transactional and have no concurrency control.

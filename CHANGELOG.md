@@ -34,6 +34,6 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Replaced the original minimal README with documentation based on the current codebase.
 - Removed obsolete links to documentation and demos maintained by the original author.
 
-[Unreleased]: https://github.com/javacaliente/GoogleScriptSQL/compare/v0.1.1...HEAD
-[0.1.1]: https://github.com/javacaliente/GoogleScriptSQL/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/javacaliente/GoogleScriptSQL/releases/tag/v0.1.0
+[Unreleased]: https://github.com/javacaliente/AppsScriptSQL/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/javacaliente/AppsScriptSQL/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/javacaliente/AppsScriptSQL/releases/tag/v0.1.0

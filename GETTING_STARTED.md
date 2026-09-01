@@ -1,6 +1,6 @@
-# Getting started with GoogleScriptSQL
+# Getting started with AppsScriptSQL
 
-GoogleScriptSQL runs inside Google Apps Script. It is copied into your Apps Script project as source code; it is not installed from npm or added as a versioned Apps Script Library.
+AppsScriptSQL runs inside Google Apps Script. It is copied into your Apps Script project as source code; it is not installed from npm or added as a versioned Apps Script Library.
 
 You can either attach the script to a Google spreadsheet or use a standalone Apps Script project. Attaching it to a spreadsheet is the simplest way to get started.
 

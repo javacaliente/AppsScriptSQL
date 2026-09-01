@@ -1,6 +1,6 @@
-# GoogleScriptSQL
+# AppsScriptSQL
 
-GoogleScriptSQL is a single-file, SQL-inspired data access layer for Google Sheets projects built with Apps Script.
+AppsScriptSQL is a single-file, SQL-inspired data access layer for Google Sheets projects built with Apps Script.
 
 Each spreadsheet acts as a database, each sheet acts as a table, the first row contains column names, and the first column is an automatically managed numeric `ID`.
 
@@ -33,7 +33,7 @@ This project runs only in Google Apps Script. It does not require an API key, np
 
 ## Installation
 
-GoogleScriptSQL currently uses copied-source deployment. It is not published as a versioned Google Apps Script Library.
+AppsScriptSQL currently uses copied-source deployment. It is not published as a versioned Google Apps Script Library.
 
 1. Open or create a project at [Google Apps Script](https://script.google.com/).
 2. Add a script file to the project.
@@ -41,7 +41,7 @@ GoogleScriptSQL currently uses copied-source deployment. It is not published as 
 4. Save the project.
 5. Run your code and authorize access to Google Sheets and Google Drive when prompted.
 
-For a complete walkthrough covering spreadsheet-bound and standalone projects, see [Getting started with GoogleScriptSQL](GETTING_STARTED.md).
+For a complete walkthrough covering spreadsheet-bound and standalone projects, see [Getting started with AppsScriptSQL](GETTING_STARTED.md).
 
 Create a fresh instance for each independent operation:
 
@@ -307,7 +307,7 @@ new gSQL().DB(databaseId).DROPDB();
 
 ## Documentation and demo
 
-- [Getting started with GoogleScriptSQL](GETTING_STARTED.md)
+- [Getting started with AppsScriptSQL](GETTING_STARTED.md)
 - [Understanding the API and its architecture](API.md)
 - [Development plan](plan.md)
 
