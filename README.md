@@ -1,16 +1,8 @@
 # AppsScriptSQL
 
-AppsScriptSQL is a single-file, SQL-inspired data access layer for Google Sheets projects built with Apps Script.
+AppsScriptSQL is a single-file JavaScript data access layer that runs in Google Apps Script. It provides a chainable, SQL-inspired API for creating, querying, updating, and deleting structured data in Google Sheets.
 
-Each spreadsheet acts as a database, each sheet acts as a table, the first row contains column names, and the first column is an automatically managed numeric `ID`.
-
-Current version: [`0.1.1`](VERSION). See the [development plan](plan.md) for the current-state assessment and staged roadmap.
-
-## Development status
-
-The `0.1.x` cycle is reserved for testing and repairing the existing implementation. New features will not be added until the current API passes the stabilization criteria in the development plan. Each patch release will contain one fix or one tightly related set of fixes.
-
-After stabilization, each approved feature will receive its own minor version. The first proposed feature release, `0.2.0`, will define explicit strict and controlled-coercion comparison modes. Until then, the current loose comparison behavior remains unchanged and will be covered by characterization tests.
+AppsScriptSQL treats one spreadsheet file as a single database and each worksheet tab within it as a table. The first row defines the column names, each subsequent row represents a record, and the first column contains an automatically generated numeric ID.
 
 ## Features
 
@@ -31,12 +23,14 @@ After stabilization, each approved feature will receive its own minor version. T
 
 This project runs only in Google Apps Script. It does not require an API key, npm package, or external database.
 
+Google Apps Script executes server-side JavaScript and represents its server-side source files with the `.gs` extension. This repository stores the same source as [`code.js`](code.js) so local JavaScript tools and tests can load it. The extension describes where the code runs; `.gs` is still JavaScript.
+
 ## Installation
 
 AppsScriptSQL currently uses copied-source deployment. It is not published as a versioned Google Apps Script Library.
 
 1. Open or create a project at [Google Apps Script](https://script.google.com/).
-2. Add a script file to the project.
+2. Add a server-side script file to the project; the Apps Script editor represents it as a `.gs` file.
 3. Copy the contents of [`code.js`](code.js) into that file.
 4. Save the project.
 5. Run your code and authorize access to Google Sheets and Google Drive when prompted.
@@ -304,6 +298,16 @@ new gSQL().DB(databaseId).DROPDB();
 - Column names must exactly match the header text.
 - Comparisons can coerce values of different JavaScript types and may match more rows than expected.
 - IDs assume that the last data row contains the highest numeric ID.
+
+## Roadmap and development details
+
+Current version: [`0.1.1`](VERSION).
+
+The `0.1.x` cycle is reserved for testing and repairing the existing implementation. New features will not be added until the current API passes the stabilization criteria in the development plan. Each patch release will contain one fix or one tightly related set of fixes.
+
+After stabilization, each approved feature will receive its own minor version. The first proposed feature release, `0.2.0`, will define explicit strict and controlled-coercion comparison modes. Until then, the current loose comparison behavior remains unchanged and will be covered by characterization tests.
+
+See the [development plan](plan.md) for the current-state assessment, stabilization checklist, and staged roadmap.
 
 ## Documentation and demo
 
